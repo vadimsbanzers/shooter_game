@@ -1,16 +1,25 @@
-[gd_scene load_steps=6 format=3 uid="uid://ccdns80r1kayl"]
+[gd_scene load_steps=8 format=3 uid="uid://ccdns80r1kayl"]
 
 [ext_resource type="Texture2D" uid="uid://ba43jkv8m41mk" path="res://Sprites/base.png" id="1_bshym"]
 [ext_resource type="Script" path="res://Scenes/Player.gd" id="1_tldc2"]
 [ext_resource type="Script" path="res://Scenes/Marker2D.gd" id="2_6qwxe"]
 [ext_resource type="Texture2D" uid="uid://crknyffukxt4i" path="res://Sprites/rect1.png" id="3_aeofa"]
+[ext_resource type="Script" path="res://Scenes/Area2D.gd" id="5_rxxo7"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_uc7dj"]
 radius = 60.0
 
+[sub_resource type="Curve2D" id="Curve2D_njc5k"]
+bake_interval = 0.01
+_data = {
+"points": PackedVector2Array(800, 500, 0, 0, -800, -450, 0, 0, 0, 0, -800, 450, 0, 0, 0, 0, 800, 450, 0, 0, 0, 0, 800, -450, 0, 0, 0, 0, -800, -450)
+}
+point_count = 5
+
 [node name="Area" type="CharacterBody2D"]
 
 [node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.75, 0.75)
 
 [node name="Player" type="CharacterBody2D" parent="."]
 script = ExtResource("1_tldc2")
@@ -28,3 +37,24 @@ shape = SubResource("CircleShape2D_uc7dj")
 [node name="Marker2D" type="Marker2D" parent="Player"]
 position = Vector2(80, 0)
 script = ExtResource("2_6qwxe")
+
+[node name="Spawner" type="Node2D" parent="."]
+
+[node name="Area2D" type="Area2D" parent="Spawner"]
+script = ExtResource("5_rxxo7")
+
+[node name="Path2D" type="Path2D" parent="Spawner/Area2D"]
+curve = SubResource("Curve2D_njc5k")
+
+[node name="PathFollow2D" type="PathFollow2D" parent="Spawner/Area2D/Path2D"]
+position = Vector2(-800, -450)
+rotation = 1.5708
+
+[node name="Marker2D" type="Marker2D" parent="Spawner/Area2D/Path2D/PathFollow2D"]
+position = Vector2(0, -1)
+rotation = -1.5708
+
+[node name="Timer" type="Timer" parent="Spawner/Area2D"]
+autostart = true
+
+[connection signal="timeout" from="Spawner/Area2D/Timer" to="Spawner/Area2D" method="_on_timer_timeout"]
